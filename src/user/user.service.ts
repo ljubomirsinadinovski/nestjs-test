@@ -36,7 +36,10 @@ export class UserService {
 
     findOneUser(id: number) {
         this.logger.log(`Finding user with id: ${id}`);
-        return this.users.find((user) => user.id === id) ?? null
+        const user = this.users.find((user) => user.id === id) 
+        if (!user)
+            throw new NotFoundException('User not found');
+        return user;
     }
 
     createUser(dto: CreateUserDto) {
@@ -49,7 +52,8 @@ export class UserService {
     updateUser(id: number, dto: UpdateUserDto) {
         this.logger.log(`Updating user with id: ${id}`);
         const index = this.users.findIndex((user) => user.id === id);
-        if (index === -1) return null;
+        if (index === -1) 
+            throw new NotFoundException('User not found')
         this.users[index] = { ...this.users[index], ...dto };
         return this.users[index];
     }
@@ -57,7 +61,8 @@ export class UserService {
     deleteUser(id: number) {
         this.logger.log(`Deleting user with id: ${id}`);
         const index = this.users.findIndex((user) => user.id === id);
-        if (index === -1) return null;
+        if (index === -1) 
+            throw new NotFoundException('User not found')
         const [deletedUser] = this.users.splice(index, 1);
         return deletedUser;
     }
