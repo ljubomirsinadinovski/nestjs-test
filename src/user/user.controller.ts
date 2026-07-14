@@ -1,6 +1,7 @@
-import { Controller, Get, Query, Post, Body, Param, Put, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Query, Post, Body, Param, Put, Delete } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserService } from './user.service';
 
 const users = [
     {
@@ -17,40 +18,33 @@ const users = [
 
 @Controller('user')
 export class UserController {
-    @Get()
-    getUsers(@Query('name') name: string) {
-        if (name) {
-            return users.filter(user =>
-                user.name.toLowerCase().includes(name.toLowerCase())
-            );
-        }
 
-        return users;
+    constructor(private readonly userService: UserService) {}
+    
+    @Get()
+    getUsers(@Query('name') name: string): unknown {
+        return this.userService.findAllUsers(name);
     }
 
     @Get(':id')
-    getUserById(@Param('id') id: string) {
-        return users.find(user => user.id === parseInt(id));
+    getUserById(@Param('id') id: string): unknown {
+        return this.userService.findOneUser(Number(id));
     }
 
     @Post() // POST /user
     createUser(@Body() createUserDto: CreateUserDto) {
-        return {
-            data: createUserDto,
-            message: 'User created successfully'
-        };
+        return this.userService.createUser(createUserDto)
     }
 
     @Put(':id') // PUT /user/:id
-    updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-        const user = users.find(user => user.id === parseInt(id));
-        if (!user) {
-            throw new NotFoundException('User not found');
-        }
-        return {
-            data: updateUserDto,
-            message: 'User updated successfully'
-        };
+    updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto): unknown {
+        return this.userService.updateUser(Number(id), updateUserDto)
+    }
+
+    @Delete(':id') // DELETE /user/:id
+    deleteUser(@Param('id') id: string): unknown {
+        console.log("ENTERS")
+        return this.userService.deleteUser(Number(id))
     }
 
    
